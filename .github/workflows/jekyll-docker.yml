@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>משחק עצור – חשוב – פעל | هويدا قطيش فاعور</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a4d6e, #0c334b);
+            font-family: 'Segoe UI', 'Tahoma', 'Arial', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 850px;
+            width: 100%;
+            background: #fffaf2;
+            border-radius: 65px 65px 55px 55px;
+            box-shadow: 0 30px 45px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            transition: 0.2s;
+            position: relative;
+        }
+
+        @keyframes sparkle {
+            0% { text-shadow: 0 0 0px gold; transform: scale(1); }
+            50% { text-shadow: 0 0 20px gold, 0 0 30px orange; transform: scale(1.05); }
+            100% { text-shadow: 0 0 0px gold; transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+            100% { transform: translateX(0); }
+        }
+
+        .sparkle-effect {
+            animation: sparkle 0.6s ease-in-out;
+        }
+
+        .wrong-effect {
+            animation: shake 0.4s ease-in-out;
+            background-color: #ffe0e0 !important;
+        }
+
+        .confetti-burst {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: gold;
+            opacity: 0.8;
+            animation: fall 1s ease-out forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .header {
+            background: linear-gradient(120deg, #fa8128, #f45c2e);
+            padding: 20px 20px 15px;
+            text-align: center;
+            color: white;
+            border-bottom: 5px solid #ffdd99;
+        }
+
+        .header h1 {
+            font-size: 1.9rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .score-area {
+            background: #fef0da;
+            padding: 12px 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.3rem;
+            border-bottom: 2px solid #ffcd88;
+        }
+
+        .stars span {
+            font-size: 1.8rem;
+            letter-spacing: 5px;
+        }
+
+        .card {
+            padding: 20px 25px 25px;
+        }
+
+        .situation-img {
+            background: #fff1e0;
+            text-align: center;
+            padding: 20px;
+            border-radius: 55px;
+            margin-bottom: 20px;
+            font-size: 5rem;
+            box-shadow: inset 0 0 0 4px white, 0 10px 15px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+
+        .situation-text {
+            background: #f7e8d6;
+            padding: 20px;
+            border-radius: 55px;
+            font-size: 1.4rem;
+            font-weight: bold;
+            text-align: center;
+            color: #3e2c1c;
+            border-right: 8px solid #ff9940;
+            margin-bottom: 25px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 25px;
+        }
+
+        .option-btn {
+            background: white;
+            border: 2px solid #ffaf60;
+            border-radius: 100px;
+            padding: 14px 18px;
+            font-size: 1.05rem;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            color: #2c4b32;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: #ffe6ce;
+            transform: scale(1.01);
+            border-color: #f45c2e;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+
+        .option-emoji {
+            font-size: 2.2rem;
+            min-width: 55px;
+            text-align: center;
+        }
+
+        .feedback {
+            background: #eef4fc;
+            border-radius: 50px;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 10px 0 20px;
+            border-right: 6px solid #2e8b57;
+            transition: 0.2s;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .nav-btn {
+            background: #fa8128;
+            border: none;
+            padding: 12px 0;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            width: 48%;
+            cursor: pointer;
+            color: white;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn.reset-btn {
+            background: #3d7ea6;
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: #e06e18;
+            transform: scale(0.98);
+        }
+
+        .nav-btn.reset-btn:hover:not(:disabled) {
+            background: #2f6282;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .footer-credit {
+            background: #ffecce;
+            text-align: center;
+            padding: 18px;
+            font-size: 1rem;
+            color: #7a5a3a;
+            border-top: 1px solid #ffd6a5;
+            font-weight: bold;
+            line-height: 1.8;
+        }
+
+        .question-counter {
+            background: #ffdbb5;
+            text-align: center;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #b45f2b;
+        }
+
+        @media (max-width: 560px) {
+            .situation-text {
+                font-size: 1.1rem;
+            }
+            .option-btn {
+                font-size: 0.85rem;
+                padding: 10px 12px;
+            }
+            .option-emoji {
+                font-size: 1.7rem;
+                min-width: 45px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="game-container" id="gameRoot">
+    <div class="header">
+        <h1>🧠🛑 توقف – فكر – تصرف ✨🎯</h1>
+        <p>تعلم تهدئة نفسك واختيار الرد المناسب</p>
+    </div>
+    <div class="score-area">
+        <div>⭐ النجاحات:</div>
+        <div class="stars" id="starsDisplay">☆☆☆☆☆☆☆☆☆☆</div>
+    </div>
+    <div class="question-counter" id="questionCounter">السؤال 1 من 10</div>
+    <div class="card">
+        <div class="situation-img" id="situationImg">🏠</div>
+        <div class="situation-text" id="situationText">...</div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="feedback" id="feedbackMsg">✨ اختر الإجابة الصحيحة لتحصل على نجمة ✨</div>
+        <div class="nav-buttons">
+            <button class="nav-btn" id="prevBtn">⬅️ السابق</button>
+            <button class="nav-btn" id="nextBtn">التالي ➡️</button>
+        </div>
+        <div class="nav-buttons" style="margin-top: 8px;">
+            <button class="nav-btn reset-btn" id="resetBtn">🔄 لعب من جديد (أسئلة جديدة)</button>
+        </div>
+    </div>
+    <div class="footer-credit">
+        ✨🧩 إعداد هويدا قطيش فاعور - محللة سلوكية ماتيا المغار 🧩✨
+    </div>
+</div>
+
+<script>
+    // יצירת צלילים
+    function playSound(type) {
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            if (type === 'correct') {
+                // צליל שמח ומעודד לתשובה נכונה
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'sine';
+                const now = audioCtx.currentTime;
+                
+                oscillator.frequency.value = 880;
+                gainNode.gain.setValueAtTime(0.3, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.25);
+                oscillator.start();
+                oscillator.stop(now + 0.2);
+                
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.frequency.value = 1100;
+                gain2.gain.setValueAtTime(0.3, now + 0.1);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+                osc2.start();
+                osc2.stop(now + 0.3);
+                
+                const osc3 = audioCtx.createOscillator();
+                const gain3 = audioCtx.createGain();
+                osc3.connect(gain3);
+                gain3.connect(audioCtx.destination);
+                osc3.frequency.value = 1320;
+                gain3.gain.setValueAtTime(0.25, now + 0.2);
+                gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.45);
+                osc3.start();
+                osc3.stop(now + 0.4);
+                
+            } else {
+                // צליל גבוה וברור לתשובה לא נכונה
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                oscillator.type = 'triangle';
+                const now = audioCtx.currentTime;
+                
+                oscillator.frequency.value = 520;
+                gainNode.gain.setValueAtTime(0.35, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+                oscillator.start();
+                oscillator.stop(now + 0.3);
+                
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.type = 'sawtooth';
+                osc2.frequency.value = 380;
+                gain2.gain.setValueAtTime(0.4, now + 0.15);
+                gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+                osc2.start();
+                osc2.stop(now + 0.45);
+                
+                const osc3 = audioCtx.createOscillator();
+                const gain3 = audioCtx.createGain();
+                osc3.connect(gain3);
+                gain3.connect(audioCtx.destination);
+                osc3.type = 'sine';
+                osc3.frequency.value = 280;
+                gain3.gain.setValueAtTime(0.3, now + 0.25);
+                gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.55);
+                osc3.start();
+                osc3.stop(now + 0.5);
+            }
+        } catch(e) { 
+            console.log("Audio not supported"); 
+        }
+    }
+
+    // יצירת נצנצים
+    function createConfetti() {
+        const container = document.createElement('div');
+        container.className = 'confetti-burst';
+        document.body.appendChild(container);
+        
+        for (let i = 0; i < 60; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + '%';
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 80%, 60%)`;
+            confetti.style.width = Math.random() * 12 + 6 + 'px';
+            confetti.style.height = Math.random() * 12 + 6 + 'px';
+            confetti.style.animationDuration = Math.random() * 1 + 0.8 + 's';
+            confetti.style.animationDelay = Math.random() * 0.3 + 's';
+            container.appendChild(confetti);
+        }
+        
+        setTimeout(() => {
+            container.remove();
+        }, 1200);
+    }
+
+    // 20 סיטואציות שונות ומגוונות - אין כפילויות
+    const allScenarios = [
+        { text: "😡🧸 أخي الصغير كسر مجسم الليغو الذي بنيته بساعات! انفجرت غضباً. ماذا تفعل؟", img: "🧩💔😤", options: [
+            { text: "أصفعه بقوة", correct: false, emoji: "👊💥" },
+            { text: "أصرخ وأكسر ألعابه", correct: false, emoji: "😤🔨" },
+            { text: "آخذ نفساً عميقاً وأقول لأمي: أحتاج مساعدة لأهدأ", correct: true, emoji: "🌬️🧘" },
+            { text: "أبصق عليه وأركض", correct: false, emoji: "💦🏃" }
+        ] },
+        { text: "📵😠 أمي قالت: 'كفاية شاشات، حان وقت النوم' وأنا في منتصف لعبتي المفضلة. ماذا أفعل؟", img: "📱😩⏰", options: [
+            { text: "أرمي الآيباد على الأرض", correct: false, emoji: "📱💢" },
+            { text: "أصرخ 'لا أريد النوم'", correct: false, emoji: "😤🔊" },
+            { text: "أتنفس وأقول: 'دقيقة واحدة وأنهي' ثم أغلق بهدوء", correct: true, emoji: "⏲️🤝" },
+            { text: "أشتم وأغلق باب غرفتي بقوة", correct: false, emoji: "🚪💥" }
+        ] },
+        { text: "🗣️💢 أبي وبخني بشدة أمام الجميع لأنني لم أرتب غرفتي، شعرت بالإهانة. ماذا أفعل؟", img: "👨😡💔", options: [
+            { text: "أشتم وأبصق", correct: false, emoji: "🤬💦" },
+            { text: "أذهب لغرفتي وأستخدم كرة الضغط لأهدأ", correct: true, emoji: "🛏️⚽🧘" },
+            { text: "أضرب الأريكة", correct: false, emoji: "🛋️👊" },
+            { text: "أرفع إصبعي الأوسط", correct: false, emoji: "🖕😤" }
+        ] },
+        { text: "🍕🚫 طلبت بيتزا لكن أمي قالت لا، 'سعرها غالي'. أشعر بخيبة أمل كبيرة. ماذا أفعل؟", img: "🍕❌😞", options: [
+            { text: "أرمي كرسياً", correct: false, emoji: "🪑💢" },
+            { text: "أذهب لركن الهدوء وألعب بالصلصال", correct: true, emoji: "🧘🎨" },
+            { text: "أبصق على الأرض", correct: false, emoji: "💦" },
+            { text: "أصرخ في وجه أمي", correct: false, emoji: "😤👩" }
+        ] },
+        { text: "👩‍🏫💻 أثناء الدرس عن بُعد، المعلمة نادتني وطلبت مني قراءة نص طويل، أشعر بالتوتر. ماذا أفعل؟", img: "😰📖💻", options: [
+            { text: "أغلق الكاميرا وأهرب", correct: false, emoji: "🏃💨" },
+            { text: "أقول 'أحتاج دقيقة' وآخذ نفساً", correct: true, emoji: "🌬️🗣️" },
+            { text: "أشتم المعلمة", correct: false, emoji: "🤬" },
+            { text: "أضرب الطاولة", correct: false, emoji: "👊📚" }
+        ] },
+        { text: "🎧🧑‍🤝‍🧑 أخي الأكبر يسخر مني لأني أخطأت في كلمة إنجليزية، يضحك علي. ماذا أفعل؟", img: "👦😆💔", options: [
+            { text: "أبصق في وجهه", correct: false, emoji: "💦😤" },
+            { text: "أقول بهدوء: 'كلامك يؤلمني، أريد الابتعاد'", correct: true, emoji: "🚶💙" },
+            { text: "أضربه بالكتاب", correct: false, emoji: "📕👊" },
+            { text: "أصرخ وأكسر شيئاً", correct: false, emoji: "💢🔊" }
+        ] },
+        { text: "🛒😫 أمي أخذتني للسوبر ماركت، المكان مزدحم جداً والضوضاء عالية، أشعر أنني سأنفجر. ماذا أفعل؟", img: "🏪🔊😵", options: [
+            { text: "أصرخ وأجري بين الأرفف", correct: false, emoji: "🏃😫" },
+            { text: "أقول لأمي: 'المكان صاخب، أحتاج الخروج'", correct: true, emoji: "🚪🌿" },
+            { text: "أبصق على الأرض", correct: false, emoji: "💦" },
+            { text: "أضرب عربة التسوق", correct: false, emoji: "🛒👊" }
+        ] },
+        { text: "🧹😤 أمي طلبت مني مساعدتها بتنظيف غرفة المعيشة، وأنا متعب وكسول. ماذا أفعل؟", img: "🧹😩🏠", options: [
+            { text: "أتجاهل وأكمل اللعب", correct: false, emoji: "🎮🙈" },
+            { text: "أقول: 'أنا متعب، ممكن أساعد بعد 10 دقائق؟'", correct: true, emoji: "⏰🤝" },
+            { text: "أشتم وأغلق باب غرفتي", correct: false, emoji: "🤬🚪" },
+            { text: "أرمي الأغراض على الأرض", correct: false, emoji: "💢📦" }
+        ] },
+        { text: "🥤😠 أردت شرب كولا لكن أمي منعتني لأني مريض. أشعر بالغضب الشديد. ماذا أفعل؟", img: "🥤🚫😤", options: [
+            { text: "أصرخ وأرمي الكأس", correct: false, emoji: "🍹💢" },
+            { text: "أذهب لفني الهدوء وأعصر كرة الضغط", correct: true, emoji: "🟠🧘" },
+            { text: "أبصق في المطبخ", correct: false, emoji: "💦" },
+            { text: "أرفع إصبعي الأوسط لأمي", correct: false, emoji: "🖕😠" }
+        ] },
+        { text: "🎮😡 انقطعت الكهرباء فجأة وأنا في تحدي الأونلاين، شعرت بإحباط شديد. ماذا أفعل؟", img: "⚡🎮💔", options: [
+            { text: "أكسر يد التحكم", correct: false, emoji: "🎮💥" },
+            { text: "آخذ نفساً عميقاً وأقول: 'سأشغل نفسي بشيء آخر'", correct: true, emoji: "🌬️🧩" },
+            { text: "أشتم الجميع", correct: false, emoji: "🤬🔊" },
+            { text: "أبصق على الحائط", correct: false, emoji: "💦🧱" }
+        ] },
+        { text: "👨‍👦 أبي يلعب مع أخي الصغير وليس معي، أشعر بالغيرة والغضب. ماذا أفعل؟", img: "👨👦💔😞", options: [
+            { text: "أقاطعهم بالصراخ", correct: false, emoji: "😤📢" },
+            { text: "أقول لأبي بهدوء: 'أريد أيضاً أن ألعب معك'", correct: true, emoji: "🤲💙" },
+            { text: "أضرب أخي", correct: false, emoji: "👊😢" },
+            { text: "أبصق وأغلق الباب", correct: false, emoji: "💦🚪" }
+        ] },
+        { text: "😭💔 لا أحد يفهمني اليوم، كل شيء يضايقني، أريد أن أصرخ. ماذا أفعل؟", img: "🌀😖💢", options: [
+            { text: "أصرخ وأرمي الأشياء", correct: false, emoji: "📢💥" },
+            { text: "أذهب لغرفة الهدوء، أستخدم الصلصال وأتنفس", correct: true, emoji: "🧘✨🪴" },
+            { text: "أبصق على الوسائد", correct: false, emoji: "💦🛋️" },
+            { text: "أصفع نفسي", correct: false, emoji: "😣✋" }
+        ] },
+        { text: "🧸🍽️ طلبت مني أمي ترتيب الطاولة، قاطعتها وأنا غاضب لأني مشغول باللعب. ماذا أفعل؟", img: "🍽️😤🧸", options: [
+            { text: "أقول: 'حاضر، سأرتبها بعد دقيقة'", correct: true, emoji: "🙌✅" },
+            { text: "أشتم وأرمي الصحون", correct: false, emoji: "🍽️💢" },
+            { text: "أتظاهر أني لم أسمع", correct: false, emoji: "🙉" },
+            { text: "أبصق على المائدة", correct: false, emoji: "💦🍽️" }
+        ] },
+        { text: "🧑‍🤝‍🧑📱 صديقي عبر الواتساب قال لي كلمة جارحة وخرج من المجموعة. شعرت بالخيانة. ماذا أفعل؟", img: "📱💔😞", options: [
+            { text: "أرد عليه بسب شديد", correct: false, emoji: "🤬📲" },
+            { text: "أخبر أمي بما حدث وأتنفس", correct: true, emoji: "👩‍👦🌬️" },
+            { text: "أحذفه وأشتم", correct: false, emoji: "🗑️😤" },
+            { text: "أبصق على الجوال", correct: false, emoji: "📱💦" }
+        ] },
+        { text: "🏠😖 الجيران يعملون ضجة كبيرة والمطر يهطل، لا أستطيع التركيز في دروسي. ماذا أفعل؟", img: "🌧️🔊😣", options: [
+            { text: "أصرخ من الشباك", correct: false, emoji: "📢😤" },
+            { text: "أضع سماعات وأطلب من أمي مساعدتي في مكان هادئ", correct: true, emoji: "🎧🤝" },
+            { text: "أكسر أقلامي", correct: false, emoji: "✏️💢" },
+            { text: "أشتم الجيران", correct: false, emoji: "🤬🏘️" }
+        ] },
+        { text: "😤📚 المعلمة أعطتني واجباً صعباً جداً، لا أعرف من أين أبدأ. ماذا أفعل؟", img: "📚😰💢", options: [
+            { text: "أمزق الورقة", correct: false, emoji: "📄💥" },
+            { text: "أطلب المساعدة بهدوء: 'أحتاج شرحاً'", correct: true, emoji: "🙋‍♂️📖" },
+            { text: "أبصق على الدفتر", correct: false, emoji: "💦📓" },
+            { text: "أصرخ وأهرب", correct: false, emoji: "🏃😤" }
+        ] },
+        { text: "🍽️😠 أمي طبخت طعاماً لا أحبه، طلبت مني أن آكل. ماذا أفعل؟", img: "🍲😖❌", options: [
+            { text: "أرمي الصحون", correct: false, emoji: "🍽️💢" },
+            { text: "أقول: 'لا أحب هذا، هل يمكنني أكل شيء آخر؟'", correct: true, emoji: "🗣️🍞" },
+            { text: "أبصق في الطعام", correct: false, emoji: "💦🍲" },
+            { text: "أصرخ ولا آكل", correct: false, emoji: "😤🚫" }
+        ] },
+        { text: "🛏️😴 لا أستطيع النوم لأن الأفكار تدور في رأسي. ماذا أفعل؟", img: "🌙😖💭", options: [
+            { text: "أصرخ وأضرب الوسادة", correct: false, emoji: "😫🛏️" },
+            { text: "آخذ نفساً عميقاً وأطلب من أمي قراءة قصة", correct: true, emoji: "📖🌙" },
+            { text: "أشتم وأبصق", correct: false, emoji: "🤬💦" },
+            { text: "أقوم وأشغل التلفاز", correct: false, emoji: "📺😠" }
+        ] },
+        { text: "🎁😠 أعطتني أمي هدية لكنها ليست التي أردتها. أشعر بخيبة أمل. ماذا أفعل؟", img: "🎁😞💔", options: [
+            { text: "أرمي الهدية وأصرخ", correct: false, emoji: "🎁💢" },
+            { text: "أشكرها رغم أنني متضايق، وأقول 'سأجربها'", correct: true, emoji: "🙏😊" },
+            { text: "أبصق على الهدية", correct: false, emoji: "💦🎁" },
+            { text: "أغلق باب غرفتي", correct: false, emoji: "🚪😤" }
+        ] },
+        { text: "👩‍⚕️😣 أمي أخذتني للطبيب وأنا خائف جداً من الإبر. ماذا أفعل؟", img: "💉😨🏥", options: [
+            { text: "أصرخ وأهرب", correct: false, emoji: "🏃😫" },
+            { text: "آخذ نفساً عميقاً وأقول للطبيب: 'أنا خائف'", correct: true, emoji: "🌬️🩺" },
+            { text: "أبصق على الطبيب", correct: false, emoji: "💦👨‍⚕️" },
+            { text: "أضرب أمي", correct: false, emoji: "👊😢" }
+        ] }
+    ];
+
+    let currentScenarios = [];
+    let currentIndex = 0;
+    let starsEarned = 0;
+    let answered = [];
+    let selectedCorrect = [];
+
+    const situationTextEl = document.getElementById("situationText");
+    const situationImgEl = document.getElementById("situationImg");
+    const optionsContainer = document.getElementById("optionsContainer");
+    const feedbackMsg = document.getElementById("feedbackMsg");
+    const starsDisplay = document.getElementById("starsDisplay");
+    const questionCounterEl = document.getElementById("questionCounter");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    function updateStarsUI() {
+        let starStr = "";
+        for (let i=0; i<starsEarned; i++) starStr += "⭐";
+        for (let i=starsEarned; i<currentScenarios.length; i++) starStr += "☆";
+        starsDisplay.innerText = starStr;
+    }
+
+    function updateCounter() {
+        questionCounterEl.innerText = `السؤال ${currentIndex+1} من ${currentScenarios.length}`;
+    }
+
+    function createSparkleEffect(element) {
+        element.classList.add('sparkle-effect');
+        setTimeout(() => element.classList.remove('sparkle-effect'), 600);
+    }
+
+    function createWrongEffect(element) {
+        element.classList.add('wrong-effect');
+        setTimeout(() => element.classList.remove('wrong-effect'), 400);
+    }
+
+    function renderCurrent() {
+        const s = currentScenarios[currentIndex];
+        situationTextEl.innerHTML = s.text;
+        situationImgEl.innerHTML = s.img + "  🧠💭";
+        optionsContainer.innerHTML = "";
+        
+        s.options.forEach((opt, idx) => {
+            const btnDiv = document.createElement("div");
+            btnDiv.className = "option-btn";
+            if (answered[currentIndex]) btnDiv.style.pointerEvents = "none";
+            btnDiv.innerHTML = `<span class="option-emoji">${opt.emoji}</span><span>${opt.text}</span>`;
+            btnDiv.addEventListener("click", () => {
+                if (answered[currentIndex]) return;
+                
+                if (opt.correct) {
+                    playSound('correct');
+                    createConfetti();
+                    createSparkleEffect(situationImgEl);
+                    createSparkleEffect(feedbackMsg);
+                    
+                    if (!answered[currentIndex]) {
+                        starsEarned++;
+                        answered[currentIndex] = true;
+                        selectedCorrect[currentIndex] = true;
+                        updateStarsUI();
+                        feedbackMsg.innerHTML = "🎉🌟✅ ممتاز! إجابة صحيحة! أحسنت! 🎉👏✨";
+                        feedbackMsg.style.background = "#d9f0e1";
+                        feedbackMsg.style.borderRightColor = "#2ecc71";
+                        renderCurrent();
+                    }
+                } else {
+                    playSound('wrong');
+                    createWrongEffect(btnDiv);
+                    createWrongEffect(feedbackMsg);
+                    
+                    feedbackMsg.innerHTML = "🔔❌ للأسف إجابة غير صحيحة... فكر بهدوء: ماذا يمكنك أن تفعل بطريقة محترمة؟ حاول مرة أخرى 🌱💪";
+                    feedbackMsg.style.background = "#ffe0e0";
+                    feedbackMsg.style.borderRightColor = "#e67e22";
+                }
+            });
+            optionsContainer.appendChild(btnDiv);
+        });
+        
+        if (answered[currentIndex]) {
+            const correctOptions = currentScenarios[currentIndex].options.filter(o=>o.correct).map(o=>o.text).join(" أو ");
+            feedbackMsg.innerHTML = `✅✨ أحسنت! لقد حصلت على نجمة! الإجابة الصحيحة: ${correctOptions} ✨🎉`;
+            feedbackMsg.style.background = "#d9f0e1";
+        }
+        
+        prevBtn.disabled = (currentIndex === 0);
+        updateCounter();
+    }
+
+    // בחירת 10 שאלות אקראיות ללא חזרות
+    function selectRandomQuestions() {
+        const shuffled = [...allScenarios];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled.slice(0, 10);
+    }
+
+    function initGame() {
+        currentScenarios = selectRandomQuestions();
+        currentIndex = 0;
+        starsEarned = 0;
+        answered = new Array(currentScenarios.length).fill(false);
+        selectedCorrect = new Array(currentScenarios.length).fill(false);
+        updateStarsUI();
+        renderCurrent();
+        feedbackMsg.innerHTML = "🎮✨ مرحباً! كل لعبة أسئلة جديدة. اختر الإجابة الصحيحة واحصل على نجوم! ✨🎮";
+        feedbackMsg.style.background = "#eef4fc";
+    }
+
+    function nextScenario() {
+        if (currentIndex < currentScenarios.length - 1) {
+            currentIndex++;
+            renderCurrent();
+        } else {
+            const message = starsEarned === currentScenarios.length 
+                ? "🏆🎉 مذهل! أجبت على جميع الأسئلة بشكل صحيح! أنت بطل التنظيم الانفعالي! 🎉🏆"
+                : `✨ انتهيت! حصلت على ${starsEarned} من أصل ${currentScenarios.length} نجوم. اضغط 'لعب من جديد' لأسئلة جديدة ✨`;
+            feedbackMsg.innerHTML = message;
+        }
+    }
+    
+    function prevScenario() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            renderCurrent();
+        }
+    }
+    
+    function resetGame() {
+        initGame();
+    }
+
+    prevBtn.addEventListener("click", prevScenario);
+    nextBtn.addEventListener("click", nextScenario);
+    resetBtn.addEventListener("click", resetGame);
+
+    initGame();
+</script>
+</body>
+</html>
